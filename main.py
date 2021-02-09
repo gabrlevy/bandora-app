@@ -50,19 +50,24 @@ def start_timer():
 
     if reps % 2 != 0:
         timer_label.config(text="Work!", fg=GREEN)
-        count_down(2)
+        count_down(work_sec)
     elif reps % 8 == 0:
         timer_label.config(text="Take a long break", fg=RED)
-        count_down(5)
+        count_down(long_break_sec)
     else:
         timer_label.config(text="Small break", fg=PINK)
-        count_down(1)
+        count_down(short_break_sec)
 
 # ------------------------------- PAUSE MECHANISM --------------------------------- #
 
 def pause_timer():
-    window.after_cancel(timer)
-    pause_button.config(text="Resume")
+    global timer
+    if pause_button.cget('text') == "Pause":
+        window.after_cancel(timer)
+        pause_button.config(text="Resume")
+    else:
+        timer = window.after(1000, count_down, - 1)
+        pause_button.config(text="Pause")
 
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- # 
@@ -73,17 +78,12 @@ def count_down(count):
     count_min = "{:02d}".format(count_min)
     count_sec = count % 60
     count_sec = "{:02d}".format(count_sec)
-    # if count_sec == 0:
-    #     count_sec = "00"
-    # if 10 > int(count_sec) > 0:
-    #     count_sec = f"0{count_sec}"
+
     canvas.itemconfig(timer_text, text=f"{count_min}:{count_sec}")
     if count >= 0:
         timer = window.after(1000, count_down, count - 1)
     else:
         start_timer()
-
-
 
 
 # ---------------------------- UI SETUP ------------------------------- #
