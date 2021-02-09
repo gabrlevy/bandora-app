@@ -23,7 +23,21 @@ def reset_timer():
     global reps
     reps = 0
 
-# ---------------------------- TIMER MECHANISM ------------------------------- # 
+# ---------------------------- UPDATE SESSIONS MECHANISM ------------------------------- #
+def update_sessions(reps):
+    mark = ""
+    sessions = "completed sessions:"
+    long_break = math.floor(reps / 8)
+    for _ in range(long_break):
+        sessions += " | "
+    completed_sessions.config(text=sessions)
+    work_sessions = math.floor(reps / 2)
+    for _ in range(work_sessions):
+        mark += "✔"
+        checks.config(text=mark)
+
+# ---------------------------- TIMER MECHANISM ------------------------------- #
+
 def start_timer():
     global reps
     reps += 1
@@ -32,42 +46,43 @@ def start_timer():
     short_break_sec = SHORT_BREAK_MIN * 60
     long_break_sec = LONG_BREAK_MIN * 60
 
+    update_sessions(reps)
 
     if reps % 2 != 0:
         timer_label.config(text="Work!", fg=GREEN)
-        count_down(work_sec)
+        count_down(2)
     elif reps % 8 == 0:
         timer_label.config(text="Take a long break", fg=RED)
-        count_down(long_break_sec)
+        count_down(5)
     else:
         timer_label.config(text="Small break", fg=PINK)
-        count_down(short_break_sec)
+        count_down(1)
+
+# ------------------------------- PAUSE MECHANISM --------------------------------- #
+
+def pause_timer():
+    window.after_cancel(timer)
+    pause_button.config(text="Resume")
+
 
 # ---------------------------- COUNTDOWN MECHANISM ------------------------------- # 
 
 def count_down(count):
     global timer
     count_min = math.floor(count / 60)
+    count_min = "{:02d}".format(count_min)
     count_sec = count % 60
-    if count_sec == 0:
-        count_sec = "00"
-    if 10 > int(count_sec) > 0:
-        count_sec = f"0{count_sec}"
+    count_sec = "{:02d}".format(count_sec)
+    # if count_sec == 0:
+    #     count_sec = "00"
+    # if 10 > int(count_sec) > 0:
+    #     count_sec = f"0{count_sec}"
     canvas.itemconfig(timer_text, text=f"{count_min}:{count_sec}")
-    if count > 0:
+    if count >= 0:
         timer = window.after(1000, count_down, count - 1)
     else:
         start_timer()
-        mark = ""
-        sessions = "completed sessions:"
-        long_break = math.floor(reps / 8)
-        for _ in range(long_break):
-            sessions += " | "
-        completed_sessions.config(text=sessions)
-        work_sessions = math.floor(reps/2)
-        for _ in range(work_sessions):
-            mark += "✔"
-            checks.config(text=mark)
+
 
 
 
@@ -91,6 +106,9 @@ start_button.grid(column=0, row=2)
 
 reset_button = Button(text="Reset", highlightthickness=0, command=reset_timer)
 reset_button.grid(column=2, row=2)
+
+pause_button = Button(text="Pause", highlightthickness=0, command=pause_timer)
+pause_button.grid(column=1, row=5)
 
 checks = Label(bg=YELLOW, fg=GREEN)
 checks.grid(column=1, row=3)
