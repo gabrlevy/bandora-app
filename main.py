@@ -15,13 +15,17 @@ timer = None
 # ---------------------------- TIMER RESET ------------------------------- # 
 
 def reset_timer():
-    window.after_cancel(timer)
-    canvas.itemconfig(timer_text, text="00:00")
-    timer_label.config(text="Bandora Timer")
-    checks.config(text="")
-    completed_sessions.config(text="")
-    global reps
-    reps = 0
+    global timer
+    if timer:
+        window.after_cancel(timer)
+        canvas.itemconfig(timer_text, text="00:00")
+        timer_label.config(text="Bandora Timer")
+        checks.config(text="")
+        completed_sessions.config(text="")
+        pause_button.config(text="Pause")
+        global reps
+        reps = 0
+        timer = None
 
 # ---------------------------- UPDATE SESSIONS MECHANISM ------------------------------- #
 def update_sessions(reps):
@@ -62,17 +66,28 @@ def start_timer():
 
 def pause_timer():
     global timer
+    if timer is None:
+        return
     if pause_button.cget('text') == "Pause":
         window.after_cancel(timer)
         pause_button.config(text="Resume")
     else:
-        timer = window.after(1000, count_down, - 1)
+        current_time = canvas.itemcget(timer_text, "text")
+        current_min = int(current_time[:2])
+        current_sec = int(current_time[3:])
+        remaining_time = current_min * 60 + current_sec
+        timer = window.after(0, count_down, remaining_time)
         pause_button.config(text="Pause")
 
 
-# ---------------------------- COUNTDOWN MECHANISM ------------------------------- # 
 
+# ---------------------------- COUNTDOWN MECHANISM ------------------------------- # 
 def count_down(count):
+    """
+    counts down the time
+    Parameters:
+    count (int): remaining time in seconds
+    """
     global timer
     count_min = math.floor(count / 60)
     count_min = "{:02d}".format(count_min)
