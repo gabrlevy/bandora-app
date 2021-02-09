@@ -19,6 +19,7 @@ def reset_timer():
     canvas.itemconfig(timer_text, text="00:00")
     timer_label.config(text="Bandora Timer")
     checks.config(text="")
+    completed_sessions.config(text="")
     global reps
     reps = 0
 
